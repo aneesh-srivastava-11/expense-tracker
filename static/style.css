@@ -1,56 +1,4 @@
-.auth-container {
-  max-width: 400px;
-  margin: 50px auto;
-  padding: 25px;
-  background: #3a3a3a;
-  border-radius: 15px;
-  box-shadow: 0 0 15px rgba(0,0,0,0.4);
-  display: flex;
-  flex-direction: column;
-}
-
-.auth-container h2 {
-  text-align: center;
-  margin-bottom: 20px;
-  color: #00cec9;
-}
-
-.auth-container label {
-  margin-top: 10px;
-}
-
-.auth-container input {
-  padding: 10px;
-  margin: 8px 0;
-  border-radius: 8px;
-  border: none;
-  font-size: 15px;
-}
-
-.auth-container button {
-  margin-top: 10px;
-  padding: 12px;
-  background-color: #00b894;
-  color: white;
-  border-radius: 8px;
-  font-weight: 500;
-  cursor: pointer;
-}
-
-.auth-container button:hover {
-  background-color: #019875;
-}
-
-.auth-container p {
-  text-align: center;
-  margin-top: 12px;
-}
-
-.auth-container a {
-  color: #00cec9;
-  text-decoration: none;
-}
-
+/* ------------------ Body & General Layout ------------------ */
 body {
   background: #2f2f2f;
   color: #f1f1f1;
@@ -69,6 +17,7 @@ body {
   box-shadow: 0 0 15px rgba(0,0,0,0.4);
 }
 
+/* ------------------ Header & Navigation ------------------ */
 header {
   display: flex;
   justify-content: space-between;
@@ -81,6 +30,11 @@ nav a {
   margin-left: 10px;
 }
 
+nav a:hover {
+  text-decoration: underline;
+}
+
+/* ------------------ Tables ------------------ */
 table {
   width: 100%;
   border-collapse: collapse;
@@ -99,6 +53,7 @@ th, td {
   font-weight: bold;
 }
 
+/* ------------------ Forms ------------------ */
 .form-box {
   display: flex;
   flex-direction: column;
@@ -112,13 +67,81 @@ input, button {
   font-size: 15px;
 }
 
+/* ------------------ Buttons ------------------ */
 button {
   background-color: #00b894;
   color: white;
   cursor: pointer;
   font-weight: 500;
+  transition: 0.2s;
 }
 
 button:hover {
   background-color: #019875;
+}
+
+/* ------------------ Auth Container (Login/Register) ------------------ */
+.auth-container {
+  max-width: 400px;
+  margin: 50px auto;
+  padding: 25px;
+  background: #3a3a3a;
+  border-radius: 15px;
+  box-shadow: 0 0 15px rgba(0,0,0,0.4);
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* centers content horizontally */
+}
+
+.auth-container h2 {
+ text-align: center;
+  margin-bottom: 20px;
+  color: #00cec9;
+}
+
+.auth-container label {
+  margin-top: 10px;
+  align-self: flex-start; 
+}
+
+.auth-container input {
+  padding: 10px;
+  margin: 8px 0;
+  border-radius: 8px;
+  border: none;
+  font-size: 15px;
+   width: 100%;      /* full width inside container */
+  box-sizing: border-box; /* includes padding in width */
+}
+
+.auth-container button {
+  margin-top: 15px;
+  padding: 12px;
+  background-color: #00b894;
+  color: white;
+  border-radius: 8px;
+  font-weight: 500;
+  cursor: pointer;
+  display: block;
+  width: 100%;       /* same width as inputs */
+  text-align: center;
+}
+
+
+.auth-container button:hover {
+  background-color: #019875;
+}
+
+.auth-container p {
+  text-align: center;
+  margin-top: 12px;
+}
+
+.auth-container a {
+  color: #00cec9;
+  text-decoration: none;
+}
+
+.auth-container a:hover {
+  text-decoration: underline;
 }
