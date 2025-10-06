@@ -1,14 +1,18 @@
 import os
-from flask import Flask, render_template, request, redirect, session
+from flask import Flask, render_template, request, redirect, session, url_for
 from flask_bcrypt import Bcrypt
 import mysql.connector
 from datetime import datetime
+from dotenv import load_dotenv
+
+# ---- Load environment variables ----
+load_dotenv()  # Reads .env file
 
 app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY", "devkey")  # fallback for local dev
 bcrypt = Bcrypt(app)
 
-# ---- DB Connection ----
+# ---- DB Connection using env vars ----
 db_user = os.environ.get("DB_USER", "root")
 db_password = os.environ.get("DB_PASSWORD", "root")
 db_host = os.environ.get("DB_HOST", "localhost")
@@ -30,7 +34,7 @@ def register():
         password = bcrypt.generate_password_hash(request.form['password']).decode('utf-8')
         try:
             cursor.execute(
-                "INSERT INTO users (username, password) VALUES (%s,%s)",
+                "INSERT INTO users (username, password) VALUES (%s, %s)",
                 (username, password)
             )
             conn.commit()
@@ -38,6 +42,7 @@ def register():
         except:
             return "Username already exists!"
     return render_template('register.html')
+
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -56,10 +61,12 @@ def login():
             return "Invalid Credentials"
     return render_template('login.html')
 
+
 @app.route('/logout')
 def logout():
     session.clear()
     return redirect('/login')
+
 
 # ---- EXPENSE ROUTES ----
 @app.route('/')
@@ -87,6 +94,7 @@ def index():
         categories=categories, totals=totals
     )
 
+
 @app.route('/add', methods=['GET', 'POST'])
 def add():
     if 'user_id' not in session:
@@ -106,6 +114,7 @@ def add():
         conn.commit()
         return redirect('/')
     return render_template('add.html')
+
 
 @app.route('/edit/<int:id>', methods=['GET', 'POST'])
 def edit(id):
@@ -131,6 +140,7 @@ def edit(id):
     expense = cursor.fetchone()
     return render_template('edit.html', expense=expense)
 
+
 @app.route('/delete/<int:id>')
 def delete(id):
     if 'user_id' not in session:
@@ -140,6 +150,7 @@ def delete(id):
     cursor.execute("DELETE FROM expenses WHERE id=%s AND user_id=%s", (id, user_id))
     conn.commit()
     return redirect('/')
+
 
 # ---- REPORTS ROUTE ----
 @app.route('/reports')
@@ -176,6 +187,7 @@ def reports():
     return render_template(
         'reports.html', category_data=category_data, month_data=month_data, overall_total=overall_total
     )
+
 
 if __name__ == '__main__':
     app.run(debug=True)
