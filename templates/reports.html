@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>📊 Expense Reports</h2>
+
+<h3>Total per Category</h3>
+<table>
+  <tr>
+    <th>Category</th>
+    <th>Total (₹)</th>
+  </tr>
+  {% for row in category_data %}
+  <tr>
+    <td>{{ row.category or 'Other' }}</td>
+    <td>{{ row.total }}</td>
+  </tr>
+  {% endfor %}
+</table>
+
+<h3>Total per Month</h3>
+<table>
+  <tr>
+    <th>Month</th>
+    <th>Total (₹)</th>
+  </tr>
+  {% for row in month_data %}
+  <tr>
+    <td>{{ row.month }}</td>
+    <td>{{ row.total }}</td>
+  </tr>
+  {% endfor %}
+</table>
+
+<h3>Overall Total: ₹{{ overall_total }}</h3>
+
+<canvas id="categoryChart" height="120"></canvas>
+<canvas id="monthChart" height="120" style="margin-top:30px;"></canvas>
+
+<script>
+const catCtx = document.getElementById('categoryChart');
+new Chart(catCtx, {
+    type: 'bar',
+    data: {
+        labels: {{ category_data|map(attribute='category')|list|tojson }},
+        datasets: [{
+            label: 'Total per Category (₹)',
+            data: {{ category_data|map(attribute='total')|list|tojson }},
+            backgroundColor: '#00b894'
+        }]
+    },
+    options: { responsive: true, scales: { y: { beginAtZero: true } } }
+});
+
+const monthCtx = document.getElementById('monthChart');
+new Chart(monthCtx, {
+    type: 'line',
+    data: {
+        labels: {{ month_data|map(attribute='month')|list|tojson }},
+        datasets: [{
+            label: 'Total per Month (₹)',
+            data: {{ month_data|map(attribute='total')|list|tojson }},
+            backgroundColor: 'rgba(0,200,148,0.4)',
+            borderColor: '#00b894',
+            fill: true,
+            tension: 0.3
+        }]
+    },
+    options: { responsive: true, scales: { y: { beginAtZero: true } } }
+});
+</script>
+{% endblock %}

@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>All Expenses</h2>
+
+<table>
+  <tr>
+    <th>Title</th>
+    <th>Category</th>
+    <th>Amount (₹)</th>
+    <th>Date</th>
+    <th>Actions</th>
+  </tr>
+  {% for e in expenses %}
+  <tr>
+    <td>{{ e.title }}</td>
+    <td>{{ e.category or 'Other' }}</td>
+    <td>{{ e.amount }}</td>
+    <td>{{ e.date }}</td>
+    <td>
+      <a href="/edit/{{ e.id }}">✏️</a>
+      <a href="/delete/{{ e.id }}" onclick="return confirm('Delete this expense?')">🗑️</a>
+    </td>
+  </tr>
+  {% endfor %}
+</table>
+
+<h3 class="total">Total Expenses: ₹{{ total }}</h3>
+
+<h3>📊 Category-wise Chart</h3>
+<canvas id="expenseChart" height="120"></canvas>
+
+<script>
+const ctx = document.getElementById('expenseChart');
+new Chart(ctx, {
+    type: 'bar',
+    data: {
+        labels: {{ categories|tojson }},
+        datasets: [{
+            label: 'Total per Category (₹)',
+            data: {{ totals|tojson }},
+            backgroundColor: '#00b894'
+        }]
+    },
+    options: {
+        responsive: true,
+        scales: {
+            y: { beginAtZero: true }
+        }
+    }
+});
+</script>
+{% endblock %}
