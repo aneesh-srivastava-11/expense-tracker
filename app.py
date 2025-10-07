@@ -24,7 +24,7 @@ expenses_col = db['expenses']
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
-        username = request.form['username']
+        username = request.form['username'].strip()
         password = bcrypt.generate_password_hash(request.form['password']).decode('utf-8')
 
         if users_col.find_one({"username": username}):
@@ -33,10 +33,11 @@ def register():
         return redirect('/login')
     return render_template('register.html')
 
+
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
-        username = request.form['username']
+        username = request.form['username'].strip()
         password = request.form['password']
 
         user = users_col.find_one({"username": username})
@@ -47,10 +48,12 @@ def login():
         return "Invalid Credentials"
     return render_template('login.html')
 
+
 @app.route('/logout')
 def logout():
     session.clear()
     return redirect('/login')
+
 
 # ---- EXPENSE ROUTES ----
 @app.route('/')
@@ -74,35 +77,41 @@ def index():
     return render_template('index.html', expenses=expenses, total=total,
                            categories=categories, totals=totals)
 
+
 @app.route('/add', methods=['GET', 'POST'])
 def add():
     if 'user_id' not in session:
         return redirect('/login')
 
     if request.method == 'POST':
-        title = request.form.get('title')
-        category = request.form.get('category') or "Other"
-        amount = request.form.get('amount')
-        date = request.form.get('date') or datetime.now().strftime('%Y-%m-%d')
-        user_id = session['user_id']
-
-        # Validate amount
         try:
-            amount = float(amount)
-        except ValueError:
-            return "Invalid amount!"
+            title = request.form.get('title', '').strip()
+            category = request.form.get('category', '').strip() or "Other"
+            amount_str = request.form.get('amount', '0').strip()
+            date_str = request.form.get('date')
 
-        # Insert into MongoDB
-        expenses_col.insert_one({
-            "title": title,
-            "category": category,
-            "amount": amount,
-            "date": date,
-            "user_id": user_id
-        })
-        return redirect('/')
+            # Validate amount
+            try:
+                amount = float(amount_str)
+            except ValueError:
+                return "Invalid amount! Please enter a number."
 
-    # Default date for form
+            # Use today's date if none provided
+            date = date_str if date_str else datetime.now().strftime('%Y-%m-%d')
+
+            # Insert into MongoDB
+            expenses_col.insert_one({
+                "title": title,
+                "category": category,
+                "amount": amount,
+                "date": date,
+                "user_id": session['user_id']
+            })
+            return redirect('/')
+        except Exception as e:
+            return f"Error adding expense: {str(e)}"
+
+    # Default date for the form
     default_date = datetime.now().strftime('%Y-%m-%d')
     return render_template('add.html', default_date=default_date)
 
@@ -112,27 +121,48 @@ def edit(id):
     if 'user_id' not in session:
         return redirect('/login')
 
-    expense = expenses_col.find_one({"_id": ObjectId(id), "user_id": session['user_id']})
+    try:
+        expense = expenses_col.find_one({"_id": ObjectId(id), "user_id": session['user_id']})
+        if not expense:
+            return "Expense not found!"
+    except:
+        return "Invalid expense ID!"
+
     if request.method == 'POST':
-        title = request.form['title']
-        category = request.form['category'] or "Other"
-        amount = float(request.form['amount'])
-        date = request.form['date']
+        title = request.form.get('title', '').strip()
+        category = request.form.get('category', '').strip() or "Other"
+        amount_str = request.form.get('amount', '0').strip()
+        date_str = request.form.get('date')
+
+        # Validate amount
+        try:
+            amount = float(amount_str)
+        except ValueError:
+            return "Invalid amount!"
+
+        # Use today's date if none provided
+        date = date_str if date_str else datetime.now().strftime('%Y-%m-%d')
 
         expenses_col.update_one(
             {"_id": ObjectId(id), "user_id": session['user_id']},
             {"$set": {"title": title, "category": category, "amount": amount, "date": date}}
         )
         return redirect('/')
+
     return render_template('edit.html', expense=expense)
+
 
 @app.route('/delete/<id>')
 def delete(id):
     if 'user_id' not in session:
         return redirect('/login')
 
-    expenses_col.delete_one({"_id": ObjectId(id), "user_id": session['user_id']})
+    try:
+        expenses_col.delete_one({"_id": ObjectId(id), "user_id": session['user_id']})
+    except:
+        return "Invalid expense ID!"
     return redirect('/')
+
 
 # ---- REPORTS ----
 @app.route('/reports')

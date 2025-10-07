@@ -20,7 +20,6 @@
       <td>{{ e.amount }}</td>
       <td>{{ e.date }}</td>
       <td>
-        <!-- Use e._id|string to correctly pass ObjectId in URL -->
         <a href="/edit/{{ e._id|string }}">✏️</a>
         <a href="/delete/{{ e._id|string }}" onclick="return confirm('Delete this expense?')">🗑️</a>
       </td>
