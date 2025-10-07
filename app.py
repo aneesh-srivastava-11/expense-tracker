@@ -13,16 +13,28 @@ app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY", "devkey")
 bcrypt = Bcrypt(app)
 
-# ---- MongoDB Connection ----
-mongo_uri = os.environ.get("MONGO_URI")
-client = MongoClient(mongo_uri)
-db = client["tracker"]  # explicitly select your DB
-users_col = db['users']
-expenses_col = db['expenses']
+# ---- MongoDB Connection Helper ----
+_mongo_client = None
+def get_db():
+    """Get MongoDB database connection and reconnect if needed."""
+    global _mongo_client
+    mongo_uri = os.environ.get("MONGO_URI")
+    try:
+        if _mongo_client is None:
+            _mongo_client = MongoClient(mongo_uri, serverSelectionTimeoutMS=5000)
+        # Ping to check connection
+        _mongo_client.admin.command('ping')
+        return _mongo_client["tracker"]
+    except:
+        _mongo_client = MongoClient(mongo_uri)
+        return _mongo_client["tracker"]
 
 # ---- AUTH ROUTES ----
 @app.route('/register', methods=['GET', 'POST'])
 def register():
+    db = get_db()
+    users_col = db['users']
+
     if request.method == 'POST':
         username = request.form['username'].strip()
         password = bcrypt.generate_password_hash(request.form['password']).decode('utf-8')
@@ -36,6 +48,9 @@ def register():
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
+    db = get_db()
+    users_col = db['users']
+
     if request.method == 'POST':
         username = request.form['username'].strip()
         password = request.form['password']
@@ -61,6 +76,9 @@ def index():
     if 'user_id' not in session:
         return redirect('/login')
 
+    db = get_db()
+    expenses_col = db['expenses']
+
     user_id = session['user_id']
     expenses = list(expenses_col.find({"user_id": user_id}).sort("date", -1))
     total = sum(float(e['amount']) for e in expenses)
@@ -82,6 +100,9 @@ def index():
 def add():
     if 'user_id' not in session:
         return redirect('/login')
+
+    db = get_db()
+    expenses_col = db['expenses']
 
     if request.method == 'POST':
         try:
@@ -111,7 +132,6 @@ def add():
         except Exception as e:
             return f"Error adding expense: {str(e)}"
 
-    # Default date for the form
     default_date = datetime.now().strftime('%Y-%m-%d')
     return render_template('add.html', default_date=default_date)
 
@@ -120,6 +140,9 @@ def add():
 def edit(id):
     if 'user_id' not in session:
         return redirect('/login')
+
+    db = get_db()
+    expenses_col = db['expenses']
 
     try:
         expense = expenses_col.find_one({"_id": ObjectId(id), "user_id": session['user_id']})
@@ -140,7 +163,6 @@ def edit(id):
         except ValueError:
             return "Invalid amount!"
 
-        # Use today's date if none provided
         date = date_str if date_str else datetime.now().strftime('%Y-%m-%d')
 
         expenses_col.update_one(
@@ -157,6 +179,9 @@ def delete(id):
     if 'user_id' not in session:
         return redirect('/login')
 
+    db = get_db()
+    expenses_col = db['expenses']
+
     try:
         expenses_col.delete_one({"_id": ObjectId(id), "user_id": session['user_id']})
     except:
@@ -169,6 +194,9 @@ def delete(id):
 def reports():
     if 'user_id' not in session:
         return redirect('/login')
+
+    db = get_db()
+    expenses_col = db['expenses']
 
     user_id = session['user_id']
 
