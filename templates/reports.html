@@ -10,7 +10,7 @@
   </tr>
   {% for row in category_data %}
   <tr>
-    <td>{{ row.category or 'Other' }}</td>
+    <td>{{ row._id or 'Other' }}</td>
     <td>{{ row.total }}</td>
   </tr>
   {% endfor %}
@@ -24,7 +24,7 @@
   </tr>
   {% for row in month_data %}
   <tr>
-    <td>{{ row.month }}</td>
+    <td>{{ row._id }}</td>
     <td>{{ row.total }}</td>
   </tr>
   {% endfor %}
@@ -35,12 +35,13 @@
 <canvas id="categoryChart" height="120"></canvas>
 <canvas id="monthChart" height="120" style="margin-top:30px;"></canvas>
 
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
 const catCtx = document.getElementById('categoryChart');
 new Chart(catCtx, {
     type: 'bar',
     data: {
-        labels: {{ category_data|map(attribute='category')|list|tojson }},
+        labels: {{ category_data|map(attribute='_id')|list|tojson }},
         datasets: [{
             label: 'Total per Category (₹)',
             data: {{ category_data|map(attribute='total')|list|tojson }},
@@ -54,7 +55,7 @@ const monthCtx = document.getElementById('monthChart');
 new Chart(monthCtx, {
     type: 'line',
     data: {
-        labels: {{ month_data|map(attribute='month')|list|tojson }},
+        labels: {{ month_data|map(attribute='_id')|list|tojson }},
         datasets: [{
             label: 'Total per Month (₹)',
             data: {{ month_data|map(attribute='total')|list|tojson }},
