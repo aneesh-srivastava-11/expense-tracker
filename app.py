@@ -80,12 +80,19 @@ def add():
         return redirect('/login')
 
     if request.method == 'POST':
-        title = request.form['title']
-        category = request.form['category'] or "Other"
-        amount = float(request.form['amount'])
-        date = request.form['date'] or datetime.now().strftime('%Y-%m-%d')
+        title = request.form.get('title')
+        category = request.form.get('category') or "Other"
+        amount = request.form.get('amount')
+        date = request.form.get('date') or datetime.now().strftime('%Y-%m-%d')
         user_id = session['user_id']
 
+        # Validate amount
+        try:
+            amount = float(amount)
+        except ValueError:
+            return "Invalid amount!"
+
+        # Insert into MongoDB
         expenses_col.insert_one({
             "title": title,
             "category": category,
@@ -94,7 +101,11 @@ def add():
             "user_id": user_id
         })
         return redirect('/')
-    return render_template('add.html')
+
+    # Default date for form
+    default_date = datetime.now().strftime('%Y-%m-%d')
+    return render_template('add.html', default_date=default_date)
+
 
 @app.route('/edit/<id>', methods=['GET', 'POST'])
 def edit(id):
