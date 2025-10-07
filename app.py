@@ -16,7 +16,7 @@ bcrypt = Bcrypt(app)
 # ---- MongoDB Connection ----
 mongo_uri = os.environ.get("MONGO_URI")
 client = MongoClient(mongo_uri)
-db = client.get_database()  # gets DB name from URI
+db = client["tracker"]  # explicitly select your DB
 users_col = db['users']
 expenses_col = db['expenses']
 
@@ -33,7 +33,6 @@ def register():
         return redirect('/login')
     return render_template('register.html')
 
-
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
@@ -48,12 +47,10 @@ def login():
         return "Invalid Credentials"
     return render_template('login.html')
 
-
 @app.route('/logout')
 def logout():
     session.clear()
     return redirect('/login')
-
 
 # ---- EXPENSE ROUTES ----
 @app.route('/')
@@ -77,7 +74,6 @@ def index():
     return render_template('index.html', expenses=expenses, total=total,
                            categories=categories, totals=totals)
 
-
 @app.route('/add', methods=['GET', 'POST'])
 def add():
     if 'user_id' not in session:
@@ -100,7 +96,6 @@ def add():
         return redirect('/')
     return render_template('add.html')
 
-
 @app.route('/edit/<id>', methods=['GET', 'POST'])
 def edit(id):
     if 'user_id' not in session:
@@ -120,7 +115,6 @@ def edit(id):
         return redirect('/')
     return render_template('edit.html', expense=expense)
 
-
 @app.route('/delete/<id>')
 def delete(id):
     if 'user_id' not in session:
@@ -128,7 +122,6 @@ def delete(id):
 
     expenses_col.delete_one({"_id": ObjectId(id), "user_id": session['user_id']})
     return redirect('/')
-
 
 # ---- REPORTS ----
 @app.route('/reports')
