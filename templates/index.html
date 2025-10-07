@@ -3,25 +3,30 @@
 <h2>All Expenses</h2>
 
 <table>
-  <tr>
-    <th>Title</th>
-    <th>Category</th>
-    <th>Amount (₹)</th>
-    <th>Date</th>
-    <th>Actions</th>
-  </tr>
-  {% for e in expenses %}
-  <tr>
-    <td>{{ e.title }}</td>
-    <td>{{ e.category or 'Other' }}</td>
-    <td>{{ e.amount }}</td>
-    <td>{{ e.date }}</td>
-    <td>
-      <a href="/edit/{{ e.id }}">✏️</a>
-      <a href="/delete/{{ e.id }}" onclick="return confirm('Delete this expense?')">🗑️</a>
-    </td>
-  </tr>
-  {% endfor %}
+  <thead>
+    <tr>
+      <th>Title</th>
+      <th>Category</th>
+      <th>Amount (₹)</th>
+      <th>Date</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for e in expenses %}
+    <tr>
+      <td>{{ e.title }}</td>
+      <td>{{ e.category or 'Other' }}</td>
+      <td>{{ e.amount }}</td>
+      <td>{{ e.date }}</td>
+      <td>
+        <!-- Use e._id|string to correctly pass ObjectId in URL -->
+        <a href="/edit/{{ e._id|string }}">✏️</a>
+        <a href="/delete/{{ e._id|string }}" onclick="return confirm('Delete this expense?')">🗑️</a>
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
 </table>
 
 <h3 class="total">Total Expenses: ₹{{ total }}</h3>
@@ -29,6 +34,7 @@
 <h3>📊 Category-wise Chart</h3>
 <canvas id="expenseChart" height="120"></canvas>
 
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
 const ctx = document.getElementById('expenseChart');
 new Chart(ctx, {
@@ -43,8 +49,15 @@ new Chart(ctx, {
     },
     options: {
         responsive: true,
+        plugins: {
+            legend: {
+                display: false
+            }
+        },
         scales: {
-            y: { beginAtZero: true }
+            y: {
+                beginAtZero: true
+            }
         }
     }
 });
