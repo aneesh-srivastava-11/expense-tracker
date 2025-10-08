@@ -145,3 +145,24 @@ button:hover {
 .auth-container a:hover {
   text-decoration: underline;
 }
+
+/* ------------------ Footer ------------------ */
+footer {
+  text-align: center;
+  margin-top: 40px;
+  padding-top: 10px;
+  border-top: 1px solid #555;
+  color: #aaa;
+  font-size: 14px;
+}
+
+/* ------------------ Responsive Center Fix ------------------ */
+body {
+  overflow-x: hidden; /* ✅ prevents side scrolling */
+  padding: 0 10px;    /* ✅ gives breathing room on mobile */
+}
+
+.container {
+  margin: 0 auto;     /* ✅ ensures full horizontal centering */
+}
+
