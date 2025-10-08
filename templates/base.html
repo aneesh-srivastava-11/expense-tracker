@@ -2,15 +2,15 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- ✅ Fixes mobile layout -->
-  <title>Cashlytics – Smart Expense Tracker</title> <!-- ✅ Updated title -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cashlytics – Smart Expense Tracker</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
   <div class="container">
     <header>
-      <h1>💸 Cashlytics</h1> <!-- ✅ App name heading -->
+      <h1>💸 Cashlytics</h1>
       <nav>
         <a href="/">Home</a>
         {% if session.get('user_id') %}
@@ -27,14 +27,38 @@
 
     <hr>
 
+    <!-- Flash messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div class="flash-container">
+          {% for category, message in messages %}
+            <div class="flash {{ category }}">{{ message }}</div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+
     <main>
       {% block content %}{% endblock %}
     </main>
 
-    <!-- ✅ Footer -->
     <footer>
       <p>© 2025 Aneesh Srivastava | Cashlytics</p>
     </footer>
+     <script>
+    window.addEventListener('DOMContentLoaded', (event) => {
+      const flashes = document.querySelectorAll('.flash');
+      if (flashes) {
+        setTimeout(() => {
+          flashes.forEach(flash => {
+            flash.style.transition = 'opacity 0.5s ease';
+            flash.style.opacity = '0';
+            setTimeout(() => flash.remove(), 500);
+          });
+        }, 4000); // 4 seconds
+      }
+    });
+  </script>
   </div>
 </body>
 </html>

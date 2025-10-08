@@ -1,5 +1,5 @@
 import os
-from flask import Flask, render_template, request, redirect, session
+from flask import Flask, render_template, request, redirect, session, flash
 from flask_bcrypt import Bcrypt
 from datetime import datetime
 from dotenv import load_dotenv
@@ -22,7 +22,6 @@ def get_db():
     try:
         if _mongo_client is None:
             _mongo_client = MongoClient(mongo_uri, serverSelectionTimeoutMS=5000)
-        # Ping to check connection
         _mongo_client.admin.command('ping')
         return _mongo_client["tracker"]
     except:
@@ -40,8 +39,11 @@ def register():
         password = bcrypt.generate_password_hash(request.form['password']).decode('utf-8')
 
         if users_col.find_one({"username": username}):
-            return "Username already exists!"
+            flash("⚠️ Username already exists!")
+            return redirect('/register')
+
         users_col.insert_one({"username": username, "password": password})
+        flash("✅ Registration successful! Please log in.")
         return redirect('/login')
     return render_template('register.html')
 
@@ -59,14 +61,17 @@ def login():
         if user and bcrypt.check_password_hash(user['password'], password):
             session['user_id'] = str(user["_id"])
             session['username'] = user["username"]
+            flash("👋 Welcome back!")
             return redirect('/')
-        return "Invalid Credentials"
+        flash("❌ Invalid credentials. Try again.")
+        return redirect('/login')
     return render_template('login.html')
 
 
 @app.route('/logout')
 def logout():
     session.clear()
+    flash("👋 Logged out successfully.")
     return redirect('/login')
 
 
@@ -115,12 +120,16 @@ def add():
             try:
                 amount = float(amount_str)
             except ValueError:
-                return "Invalid amount! Please enter a number."
+                flash("⚠️ Invalid amount! Please enter a number.")
+                return redirect('/add')
+
+            if amount < 1 or amount > 500000:
+                flash("⚠️ Amount must be between ₹1 and ₹5,00,000.")
+                return redirect('/add')
 
             # Use today's date if none provided
             date = date_str if date_str else datetime.now().strftime('%Y-%m-%d')
 
-            # Insert into MongoDB
             expenses_col.insert_one({
                 "title": title,
                 "category": category,
@@ -128,9 +137,11 @@ def add():
                 "date": date,
                 "user_id": session['user_id']
             })
+            flash("✅ Expense added successfully!")
             return redirect('/')
         except Exception as e:
-            return f"Error adding expense: {str(e)}"
+            flash(f"Error adding expense: {str(e)}")
+            return redirect('/add')
 
     default_date = datetime.now().strftime('%Y-%m-%d')
     return render_template('add.html', default_date=default_date)
@@ -147,9 +158,11 @@ def edit(id):
     try:
         expense = expenses_col.find_one({"_id": ObjectId(id), "user_id": session['user_id']})
         if not expense:
-            return "Expense not found!"
+            flash("⚠️ Expense not found.")
+            return redirect('/')
     except:
-        return "Invalid expense ID!"
+        flash("⚠️ Invalid expense ID.")
+        return redirect('/')
 
     if request.method == 'POST':
         title = request.form.get('title', '').strip()
@@ -161,7 +174,12 @@ def edit(id):
         try:
             amount = float(amount_str)
         except ValueError:
-            return "Invalid amount!"
+            flash("⚠️ Invalid amount!")
+            return redirect(f'/edit/{id}')
+
+        if amount < 1 or amount > 500000:
+            flash("⚠️ Amount must be between ₹1 and ₹5,00,000.")
+            return redirect(f'/edit/{id}')
 
         date = date_str if date_str else datetime.now().strftime('%Y-%m-%d')
 
@@ -169,6 +187,7 @@ def edit(id):
             {"_id": ObjectId(id), "user_id": session['user_id']},
             {"$set": {"title": title, "category": category, "amount": amount, "date": date}}
         )
+        flash("✅ Expense updated successfully!")
         return redirect('/')
 
     return render_template('edit.html', expense=expense)
@@ -184,8 +203,9 @@ def delete(id):
 
     try:
         expenses_col.delete_one({"_id": ObjectId(id), "user_id": session['user_id']})
+        flash("🗑️ Expense deleted.")
     except:
-        return "Invalid expense ID!"
+        flash("⚠️ Invalid expense ID.")
     return redirect('/')
 
 
