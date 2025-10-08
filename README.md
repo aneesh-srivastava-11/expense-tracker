@@ -1,4 +1,4 @@
-# 💸 Cashlytic-Flask Expense Tracker (Learning Project)
+# 💸 Cashlytics-Flask Expense Tracker (Learning Project)
 
 Cashlytic is a **basic web app** I made while learning **Flask** and trying out **MongoDB integration** hands-on.  
 It’s not a big production app — just a small project to understand how backend and database work together.
