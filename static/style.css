@@ -195,3 +195,20 @@ body {
 @keyframes fadein { from {opacity:0} to {opacity:1} }
 @keyframes fadeout { from {opacity:1} to {opacity:0} }
 
+.table-responsive {
+  overflow-x: auto; /* Horizontal scroll on small screens */
+  width: 100%;
+}
+
+.table-responsive table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table-responsive th,
+.table-responsive td {
+  padding: 10px;
+  text-align: center;
+  border-bottom: 1px solid #555;
+  white-space: nowrap; /* prevents wrapping */
+}

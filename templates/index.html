@@ -2,31 +2,34 @@
 {% block content %}
 <h2>All Expenses</h2>
 
-<table>
-  <thead>
-    <tr>
-      <th>Title</th>
-      <th>Category</th>
-      <th>Amount (₹)</th>
-      <th>Date</th>
-      <th>Actions</th>
-    </tr>
-  </thead>
-  <tbody>
-    {% for e in expenses %}
-    <tr>
-      <td>{{ e.title }}</td>
-      <td>{{ e.category or 'Other' }}</td>
-      <td>{{ e.amount }}</td>
-      <td>{{ e.date }}</td>
-      <td>
-        <a href="/edit/{{ e._id|string }}">✏️</a>
-        <a href="/delete/{{ e._id|string }}" onclick="return confirm('Delete this expense?')">🗑️</a>
-      </td>
-    </tr>
-    {% endfor %}
-  </tbody>
-</table>
+<!-- Responsive table wrapper -->
+<div class="table-responsive">
+  <table>
+    <thead>
+      <tr>
+        <th>Title</th>
+        <th>Category</th>
+        <th>Amount (₹)</th>
+        <th>Date</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for e in expenses %}
+      <tr>
+        <td>{{ e.title }}</td>
+        <td>{{ e.category or 'Other' }}</td>
+        <td>{{ e.amount }}</td>
+        <td>{{ e.date }}</td>
+        <td>
+          <a href="/edit/{{ e._id|string }}">✏️</a>
+          <a href="/delete/{{ e._id|string }}" onclick="return confirm('Delete this expense?')">🗑️</a>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
 
 <h3 class="total">Total Expenses: ₹{{ total }}</h3>
 

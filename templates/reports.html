@@ -2,33 +2,39 @@
 {% block content %}
 <h2>📊 Expense Reports</h2>
 
+<!-- Category-wise table -->
 <h3>Total per Category</h3>
-<table>
-  <tr>
-    <th>Category</th>
-    <th>Total (₹)</th>
-  </tr>
-  {% for row in category_data %}
-  <tr>
-    <td>{{ row._id or 'Other' }}</td>
-    <td>{{ row.total }}</td>
-  </tr>
-  {% endfor %}
-</table>
+<div class="table-responsive">
+  <table>
+    <tr>
+      <th>Category</th>
+      <th>Total (₹)</th>
+    </tr>
+    {% for row in category_data %}
+    <tr>
+      <td>{{ row._id or 'Other' }}</td>
+      <td>{{ row.total }}</td>
+    </tr>
+    {% endfor %}
+  </table>
+</div>
 
+<!-- Month-wise table -->
 <h3>Total per Month</h3>
-<table>
-  <tr>
-    <th>Month</th>
-    <th>Total (₹)</th>
-  </tr>
-  {% for row in month_data %}
-  <tr>
-    <td>{{ row._id }}</td>
-    <td>{{ row.total }}</td>
-  </tr>
-  {% endfor %}
-</table>
+<div class="table-responsive">
+  <table>
+    <tr>
+      <th>Month</th>
+      <th>Total (₹)</th>
+    </tr>
+    {% for row in month_data %}
+    <tr>
+      <td>{{ row._id }}</td>
+      <td>{{ row.total }}</td>
+    </tr>
+    {% endfor %}
+  </table>
+</div>
 
 <h3>Overall Total: ₹{{ overall_total }}</h3>
 
